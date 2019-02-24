@@ -8,7 +8,7 @@ import java.util.List;
 public interface IExpenseService {
     List<Expense> getAllExpenses();
 
-    Expense createExpense(Expense expense);
+    Expense saveExpense(Expense expense);
 
     Expense saveExpense(Date date, String vendor, Double price, int pay_method, byte[] scan);
 

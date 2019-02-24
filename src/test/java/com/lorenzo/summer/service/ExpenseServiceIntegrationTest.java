@@ -1,6 +1,7 @@
 package com.lorenzo.summer.service;
 
 import com.lorenzo.summer.SummerApplication;
+import com.lorenzo.summer.exception.ExpenseNotFoundException;
 import com.lorenzo.summer.model.Expense;
 import org.junit.Assert;
 import org.junit.Test;
@@ -22,7 +23,7 @@ import java.util.List;
 @Profile("test")
 //WE WANT TESTS TO BE ISOLATED, DirtiesContext RELOAD SPRING CONTEXT AFTER EACH TESTS, SO THAT THE HSQLDB STARTS CLEAN
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class ExpenseServiceImplTest {
+public class ExpenseServiceIntegrationTest {
 
     private static final Expense EXPENSE_1 = new Expense(new Date(), "VENDOR_1", 1d, 1, new byte[1]);
     private static final Expense EXPENSE_2 = new Expense(new Date(), "VENDOR_2", 2d, 2, new byte[2]);
@@ -33,11 +34,11 @@ public class ExpenseServiceImplTest {
 
     @Test
     @Transactional
-    public void getAllExpensesTest() {
+    public void saveSomeExpenses_retrieveAllSavedExpenses_savedExpensesMatchRetrievedExpenses() {
         //GIVEN
-        Expense EXPENSE_1_SAVED = sut.createExpense(EXPENSE_1);
-        Expense EXPENSE_2_SAVED = sut.createExpense(EXPENSE_2);
-        Expense EXPENSE_3_SAVED = sut.createExpense(EXPENSE_3);
+        Expense EXPENSE_1_SAVED = sut.saveExpense(EXPENSE_1);
+        Expense EXPENSE_2_SAVED = sut.saveExpense(EXPENSE_2);
+        Expense EXPENSE_3_SAVED = sut.saveExpense(EXPENSE_3);
         Collection SAVED_EXPENSES = Arrays.asList(EXPENSE_1_SAVED, EXPENSE_2_SAVED, EXPENSE_3_SAVED);
 
         //WHEN
@@ -49,7 +50,7 @@ public class ExpenseServiceImplTest {
 
     @Test
     @Transactional
-    public void saveExpenseTest() {
+    public void createAnExpense_saveExpense_expenseIsCorrectlySaved() {
         //GIVEN
         Expense AN_EXPENSE = new Expense(new Date(), "VENDOR_1", 1d, 1, new byte[1]);
 
@@ -64,12 +65,12 @@ public class ExpenseServiceImplTest {
 
     @Test
     @Transactional
-    public void saveExpenseObjectTest() {
+    public void createAnExpense_saveExpenseObject_expenseIsCorrectlySaved() {
         //GIVEN
         Expense AN_EXPENSE = new Expense(new Date(), "VENDOR_1", 1d, 1, new byte[1]);
 
         //WHEN
-        Expense AN_EXPENSE_SAVED = sut.createExpense(AN_EXPENSE);
+        Expense AN_EXPENSE_SAVED = sut.saveExpense(AN_EXPENSE);
 
         //THEN
         final int EXPECTED_ID = 1;
@@ -78,9 +79,9 @@ public class ExpenseServiceImplTest {
 
     @Test
     @Transactional
-    public void updateExpenseTest() {
+    public void saveAndRetrieveAnExpense_modifyAndUpdateExpense_expenseIsCorrectlyUpdated() {
         //GIVEN
-        Expense EXPENSE_1_SAVED = sut.createExpense(EXPENSE_1);
+        Expense EXPENSE_1_SAVED = sut.saveExpense(EXPENSE_1);
 
         final String UPDATED_VENDOR_EXAMPLE = "UPDATED_VENDOR";
         EXPENSE_1_SAVED.setVendor(UPDATED_VENDOR_EXAMPLE);
@@ -105,11 +106,9 @@ public class ExpenseServiceImplTest {
 
     @Test
     @Transactional
-    public void getExpenseByIdTest() {
+    public void saveAnExpense_getExpenseById_expenseIsCorrectlyRetrieved() {
         //GIVEN
-        Expense EXPENSE_1_SAVED = sut.createExpense(EXPENSE_1);
-        Expense EXPENSE_2_SAVED = sut.createExpense(EXPENSE_2);
-        Expense EXPENSE_3_SAVED = sut.createExpense(EXPENSE_3);
+        Expense EXPENSE_1_SAVED = sut.saveExpense(EXPENSE_1);
 
         //WHEN
         Expense EXPENSE_1_RETRIEVED = sut.getExpenseById(EXPENSE_1_SAVED.getId());
@@ -118,21 +117,29 @@ public class ExpenseServiceImplTest {
         Assert.assertEquals(EXPENSE_1_SAVED,EXPENSE_1_RETRIEVED);
     }
 
+    @Test(expected = ExpenseNotFoundException.class)
+    @Transactional
+    public void getExpenseById_NoSuchExpenseExists_ExpenseNotFoundExceptionIsThrown() {
+        //WHEN
+        final int UNEXISTING_EXPENSE_ID = 22;
+        sut.getExpenseById(UNEXISTING_EXPENSE_ID);
+    }
+
     @Test
     @Transactional
-    public void deleteExpenseTest() {
+    public void saveSomeExpenses_deleteOneOfThoseExpenses_thatExpenseDeletedAndOthersRemain() {
         //GIVEN
-        Expense EXPENSE_1_SAVED = sut.createExpense(EXPENSE_1);
-        Expense EXPENSE_2_SAVED = sut.createExpense(EXPENSE_2);
-        Expense EXPENSE_3_SAVED = sut.createExpense(EXPENSE_3);
+        Expense EXPENSE_1_SAVED = sut.saveExpense(EXPENSE_1);
+        Expense EXPENSE_2_SAVED = sut.saveExpense(EXPENSE_2);
+        Expense EXPENSE_3_SAVED = sut.saveExpense(EXPENSE_3);
 
         //WHEN
-        final int numberExpensesDeleted = sut.deleteExpense(EXPENSE_2_SAVED.getId());
+        final int effectivelyDeletedNumberOfExpenses = sut.deleteExpense(EXPENSE_2_SAVED.getId());
 
         // THEN
         Collection EXPENSES_IN_DB = sut.getAllExpenses();
-        final int SINGLE_EXPENSE_DELETED = 1;
-        Assert.assertEquals(SINGLE_EXPENSE_DELETED,numberExpensesDeleted);
+        final int DELETED_NUMBER_OF_EXPENSES = 1;
+        Assert.assertEquals(DELETED_NUMBER_OF_EXPENSES,effectivelyDeletedNumberOfExpenses);
         Assert.assertEquals(Arrays.asList(EXPENSE_1_SAVED, EXPENSE_3_SAVED), EXPENSES_IN_DB);
     }
 }

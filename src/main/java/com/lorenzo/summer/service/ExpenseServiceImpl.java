@@ -25,7 +25,7 @@ public class ExpenseServiceImpl implements IExpenseService {
 
     @Override
     @Transactional
-    public Expense createExpense(Expense expense) {
+    public Expense saveExpense(Expense expense) {
         return expenseDAO.createExpense(expense);
     }
 

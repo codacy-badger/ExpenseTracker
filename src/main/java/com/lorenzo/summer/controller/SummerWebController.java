@@ -25,9 +25,9 @@ public class SummerWebController {
         return expenseService.getExpenseById(expenseId);
     }
 
-    @PostMapping(path = "/createExpense",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/saveExpense",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Expense createExpense(@RequestBody Expense toCreate){
-        return expenseService.createExpense(toCreate);
+        return expenseService.saveExpense(toCreate);
     }
 
     @PostMapping(path = "/updateExpense",consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

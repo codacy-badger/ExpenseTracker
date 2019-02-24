@@ -1,6 +1,7 @@
 package com.lorenzo.summer.dao;
 
 import com.lorenzo.summer.SummerApplication;
+import com.lorenzo.summer.exception.ExpenseNotFoundException;
 import com.lorenzo.summer.model.Expense;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -15,6 +16,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -37,7 +39,7 @@ public class ExpenseDAOImplTest {
 
     @Test
     @Transactional
-    public void getExpenseByIdTest() {
+    public void saveSomeExpenses_getExistingExpenseByItsId_expenseRetrievedSuccessfully() {
         //GIVEN
         final Expense EXPENSE = sut.createExpense(EXPENSE_1);
         sut.createExpense(EXPENSE_2);
@@ -50,22 +52,21 @@ public class ExpenseDAOImplTest {
         Assert.assertEquals(EXPENSE, EXPENSE_1_READ);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = ExpenseNotFoundException.class)
     @Transactional
-    public void getExpenseById_noExpensesWithSuchIdExist_exceptionIsThrown() {
+    public void getExpenseById_noExpensesWithSuchIdExist_expenseNotFoundExceptionIsThrown() {
         //GIVEN
-        final Expense EXPENSE = sut.createExpense(EXPENSE_1);
         sut.createExpense(EXPENSE_2);
         sut.createExpense(EXPENSE_3);
 
         //WHEN
-        final int NON_EXISTING_EXPENSE_ID = 7;
-        sut.getExpenseById(NON_EXISTING_EXPENSE_ID);
+        final int UNEXISTING_EXPENSE_ID = 7;
+        sut.getExpenseById(UNEXISTING_EXPENSE_ID);
     }
 
     @Test
     @Transactional
-    public void getAllExpensesTest() {
+    public void saveSomeExpenses_getAllSavedExpenses_allExpensesRetrievedSuccessfully() {
         //GIVEN
         sut.createExpense(EXPENSE_1);
         sut.createExpense(EXPENSE_2);
@@ -80,14 +81,29 @@ public class ExpenseDAOImplTest {
 
     @Test
     @Transactional
-    public void saveExpenseTest() {
+    public void noExpensesAreSaved_getAllSavedExpenses_anEmptyListIsReturned() {
+        //WHEN
+        List retrievedExpenses = sut.getAllExpenses();
+
+        //THEN
+        Assert.assertEquals(retrievedExpenses, Collections.emptyList());
+    }
+
+    @Test
+    @Transactional
+    public void saveAnExpense_saveTheExpense_savedExpenseIdIsCorrectlyGenerated() {
         //WHEN
         final Expense AN_EXPENSE = sut.createExpense(EXPENSE_1);
 
         //THEN
         Assert.assertEquals(1, AN_EXPENSE.getId());
+    }
 
+    @Test
+    @Transactional
+    public void saveTwoExpenses_saveTheExpenses_expesesIdsAreCorrectlyOrdered() {
         //WHEN
+        sut.createExpense(EXPENSE_1);
         final Expense ANOTHER_EXPENSE = sut.createExpense(EXPENSE_2);
 
         //THEN
@@ -97,7 +113,7 @@ public class ExpenseDAOImplTest {
 
     @Test
     @Transactional
-    public void updateExpenseTest(){
+    public void saveAnExpense_retrieveModifyAndSaveUpdatedExpense_expenseIsCorrectlyUpdated(){
         //GIVEN
         final Expense AN_EXPENSE = sut.createExpense(EXPENSE_1);
         Expense AN_EXPENSE_READ = sut.getExpenseById(AN_EXPENSE.getId());

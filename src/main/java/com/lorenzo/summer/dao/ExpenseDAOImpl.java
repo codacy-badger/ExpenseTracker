@@ -1,5 +1,6 @@
 package com.lorenzo.summer.dao;
 
+import com.lorenzo.summer.exception.ExpenseNotFoundException;
 import com.lorenzo.summer.model.Expense;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -23,8 +24,7 @@ public class ExpenseDAOImpl implements IExpenseDAO {
         try {
             return doGetExpenseById(expenseId);
         } catch (Exception exception) {
-            throw new RuntimeException("Error while retrieving expense " + expenseId
-                    + " stacktrace: " + exception.getMessage());
+            throw new ExpenseNotFoundException("Error while retrieving expense " + expenseId);
         }
     }
 
@@ -59,7 +59,7 @@ public class ExpenseDAOImpl implements IExpenseDAO {
     @Override
     public int deleteExpense(int expenseId) {
         Session currentSession = sessionFactory.getCurrentSession();
-        Query deleteExpenseQuery = currentSession.createQuery("delete from Expense where id = :id");
+        Query deleteExpenseQuery = currentSession.createQuery("delete FROM Expense WHERE id = :id");
         deleteExpenseQuery.setParameter("id", expenseId);
         return deleteExpenseQuery.executeUpdate();
     }
