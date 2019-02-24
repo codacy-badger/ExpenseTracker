@@ -7,11 +7,11 @@ import java.util.List;
 public interface IExpenseDAO {
     Expense getExpenseById(int expenseId);
 
-    List<Expense> getAllExpenses();
-
-    Expense createExpense(Expense expense);
+    Expense saveExpense(Expense expense);
 
     Expense updateExpense(Expense updatedExpense);
 
     int deleteExpense(int expenseId);
+
+    List<Expense> getAllExpenses();
 }

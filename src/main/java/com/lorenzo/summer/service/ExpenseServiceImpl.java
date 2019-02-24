@@ -26,14 +26,14 @@ public class ExpenseServiceImpl implements IExpenseService {
     @Override
     @Transactional
     public Expense saveExpense(Expense expense) {
-        return expenseDAO.createExpense(expense);
+        return expenseDAO.saveExpense(expense);
     }
 
     @Override
     @Transactional
     public Expense saveExpense(Date date, String vendor, Double price, int pay_method, byte[] scan) {
         Expense expense = new Expense(date, vendor, price, pay_method, scan);
-        return expenseDAO.createExpense(expense);
+        return expenseDAO.saveExpense(expense);
     }
 
     @Override

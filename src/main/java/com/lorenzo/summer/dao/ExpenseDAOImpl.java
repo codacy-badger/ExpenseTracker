@@ -1,7 +1,11 @@
 package com.lorenzo.summer.dao;
 
+import com.lorenzo.summer.exception.ExpenseDeleteException;
 import com.lorenzo.summer.exception.ExpenseNotFoundException;
+import com.lorenzo.summer.exception.ExpenseSaveException;
+import com.lorenzo.summer.exception.ExpenseUpdateException;
 import com.lorenzo.summer.model.Expense;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
@@ -33,24 +37,37 @@ public class ExpenseDAOImpl implements IExpenseDAO {
         final String getExpenseById = "FROM Expense E WHERE E.id = :expenseId";
         TypedQuery<Expense> expenseByIdQuery = currentSession.createQuery(getExpenseById, Expense.class);
         expenseByIdQuery.setParameter("expenseId", expenseId);
+
         return expenseByIdQuery.getSingleResult();
     }
 
     @Override
-    public List<Expense> getAllExpenses() {
-        Session currentSession = sessionFactory.getCurrentSession();
-        TypedQuery<Expense> expensesQuery = currentSession.createQuery("FROM Expense", Expense.class);
-        return expensesQuery.getResultList();
+    public Expense saveExpense(Expense expense) {
+        try {
+            return doGetExpense(expense);
+        } catch (HibernateException hibernateException) {
+            throw new ExpenseSaveException("Error while saving expense" + expense.toString());
+        }
     }
 
-    @Override
-    public Expense createExpense(Expense expense) {
+    private Expense doGetExpense(Expense expense) {
         Session currentSession = sessionFactory.getCurrentSession();
-        return getExpenseById((int) currentSession.save(expense));
+        final int savedExpensePrimaryKey = (int) currentSession.save(expense);
+
+        return getExpenseById(savedExpensePrimaryKey);
     }
 
     @Override
     public Expense updateExpense(Expense updatedExpense) {
+        try {
+            return doUpdateExpense(updatedExpense);
+        } catch (Exception exception) {
+            throw new ExpenseUpdateException("Error updating expense " + updatedExpense.getId());
+        }
+
+    }
+
+    private Expense doUpdateExpense(Expense updatedExpense) {
         Session currentSession = sessionFactory.getCurrentSession();
         currentSession.update(updatedExpense);
         return getExpenseById(updatedExpense.getId());
@@ -58,10 +75,28 @@ public class ExpenseDAOImpl implements IExpenseDAO {
 
     @Override
     public int deleteExpense(int expenseId) {
+        try {
+            return doDeleteExpense(expenseId);
+        } catch (Exception exception) {
+            throw new ExpenseDeleteException("Error deleting expense " + expenseId);
+        }
+    }
+
+    private int doDeleteExpense(int expenseId) {
         Session currentSession = sessionFactory.getCurrentSession();
-        Query deleteExpenseQuery = currentSession.createQuery("delete FROM Expense WHERE id = :id");
+        final String deleteFrom = "delete FROM Expense WHERE id = :id";
+        Query deleteExpenseQuery = currentSession.createQuery(deleteFrom);
         deleteExpenseQuery.setParameter("id", expenseId);
+
         return deleteExpenseQuery.executeUpdate();
     }
 
+    @Override
+    public List<Expense> getAllExpenses() {
+        Session currentSession = sessionFactory.getCurrentSession();
+        final String fromExpenseTable = "FROM Expense";
+        TypedQuery<Expense> expensesQuery = currentSession.createQuery(fromExpenseTable, Expense.class);
+
+        return expensesQuery.getResultList();
+    }
 }

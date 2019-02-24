@@ -2,6 +2,7 @@ package com.lorenzo.summer.dao;
 
 import com.lorenzo.summer.SummerApplication;
 import com.lorenzo.summer.exception.ExpenseNotFoundException;
+import com.lorenzo.summer.exception.ExpenseUpdateException;
 import com.lorenzo.summer.model.Expense;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -31,9 +32,6 @@ public class ExpenseDAOImplTest {
     private static final Expense EXPENSE_2 = new Expense(new Date(), "VENDOR_2", 2d, 2, new byte[2]);
     private static final Expense EXPENSE_3 = new Expense(new Date(), "VENDOR_3", 3d, 3, new byte[3]);
 
-    @Rule
-    public ExpectedException exceptionRule = ExpectedException.none();
-
     @Autowired
     private IExpenseDAO sut;
 
@@ -41,9 +39,9 @@ public class ExpenseDAOImplTest {
     @Transactional
     public void saveSomeExpenses_getExistingExpenseByItsId_expenseRetrievedSuccessfully() {
         //GIVEN
-        final Expense EXPENSE = sut.createExpense(EXPENSE_1);
-        sut.createExpense(EXPENSE_2);
-        sut.createExpense(EXPENSE_3);
+        final Expense EXPENSE = sut.saveExpense(EXPENSE_1);
+        sut.saveExpense(EXPENSE_2);
+        sut.saveExpense(EXPENSE_3);
 
         //WHEN
         Expense EXPENSE_1_READ = sut.getExpenseById(EXPENSE.getId());
@@ -56,8 +54,8 @@ public class ExpenseDAOImplTest {
     @Transactional
     public void getExpenseById_noExpensesWithSuchIdExist_expenseNotFoundExceptionIsThrown() {
         //GIVEN
-        sut.createExpense(EXPENSE_2);
-        sut.createExpense(EXPENSE_3);
+        sut.saveExpense(EXPENSE_2);
+        sut.saveExpense(EXPENSE_3);
 
         //WHEN
         final int UNEXISTING_EXPENSE_ID = 7;
@@ -68,9 +66,9 @@ public class ExpenseDAOImplTest {
     @Transactional
     public void saveSomeExpenses_getAllSavedExpenses_allExpensesRetrievedSuccessfully() {
         //GIVEN
-        sut.createExpense(EXPENSE_1);
-        sut.createExpense(EXPENSE_2);
-        sut.createExpense(EXPENSE_3);
+        sut.saveExpense(EXPENSE_1);
+        sut.saveExpense(EXPENSE_2);
+        sut.saveExpense(EXPENSE_3);
 
         //WHEN
         List res = sut.getAllExpenses();
@@ -93,7 +91,7 @@ public class ExpenseDAOImplTest {
     @Transactional
     public void saveAnExpense_saveTheExpense_savedExpenseIdIsCorrectlyGenerated() {
         //WHEN
-        final Expense AN_EXPENSE = sut.createExpense(EXPENSE_1);
+        final Expense AN_EXPENSE = sut.saveExpense(EXPENSE_1);
 
         //THEN
         Assert.assertEquals(1, AN_EXPENSE.getId());
@@ -103,19 +101,35 @@ public class ExpenseDAOImplTest {
     @Transactional
     public void saveTwoExpenses_saveTheExpenses_expesesIdsAreCorrectlyOrdered() {
         //WHEN
-        sut.createExpense(EXPENSE_1);
-        final Expense ANOTHER_EXPENSE = sut.createExpense(EXPENSE_2);
+        sut.saveExpense(EXPENSE_1);
+        final Expense ANOTHER_EXPENSE = sut.saveExpense(EXPENSE_2);
 
         //THEN
         Assert.assertEquals(2, ANOTHER_EXPENSE.getId());
 
     }
 
+    @Test(expected = ExpenseNotFoundException.class)
+    @Transactional
+    public void saveTwoExpenses_alterIdOfASavedExpenseAndSave_expenseNotFoundExceptionIsThrown() {
+        /*
+        you cannot modify an Entity's ID in the same transaction
+         */
+
+        //GIVEN
+        final Expense ID_ONE_EXPENSE = sut.saveExpense(EXPENSE_1);
+        final Expense ID_TWO_EXPENSE = sut.saveExpense(EXPENSE_2);
+
+        //WHEN
+        ID_TWO_EXPENSE.setId(ID_ONE_EXPENSE.getId());
+        sut.saveExpense(ID_TWO_EXPENSE);
+    }
+
     @Test
     @Transactional
-    public void saveAnExpense_retrieveModifyAndSaveUpdatedExpense_expenseIsCorrectlyUpdated(){
+    public void saveAnExpense_retrieveModifyAndSaveUpdatedExpense_expenseIsCorrectlyUpdated() {
         //GIVEN
-        final Expense AN_EXPENSE = sut.createExpense(EXPENSE_1);
+        final Expense AN_EXPENSE = sut.saveExpense(EXPENSE_1);
         Expense AN_EXPENSE_READ = sut.getExpenseById(AN_EXPENSE.getId());
 
         //WHEN
@@ -128,34 +142,56 @@ public class ExpenseDAOImplTest {
         Assert.assertEquals(AN_EXPENSE_READ, sut.getExpenseById(AN_EXPENSE.getId()));
     }
 
-    @Test
+    @Test(expected = ExpenseNotFoundException.class)
     @Transactional
-    public void saveAnExpense_deleteThatExpense_tryGettingThatExpenseResultInExceptionBecauseExpenseDeleted(){
+    public void saveAnExpense_deleteThatExpense_tryGettingThatExpenseResultsInExpenseNotFoundException() {
         //GIVEN
-        sut.createExpense(EXPENSE_1);
-        final Expense EXPENSE_TO_BE_DELETED = sut.createExpense(EXPENSE_2);
-        sut.createExpense(EXPENSE_3);
+        sut.saveExpense(EXPENSE_1);
+        final Expense EXPENSE_TO_BE_DELETED = sut.saveExpense(EXPENSE_2);
+        sut.saveExpense(EXPENSE_3);
 
         //WHEN
         sut.deleteExpense(EXPENSE_TO_BE_DELETED.getId());
 
         //THEN
-        exceptionRule.expect(RuntimeException.class);
         sut.getExpenseById(EXPENSE_TO_BE_DELETED.getId());
     }
 
     @Test
     @Transactional
-    public void deleteExpense_thatExpenseExists_expenseIsDeleted(){
+    public void deleteExpense_expenseExists_expenseIsDeleted() {
         //GIVEN
-        sut.createExpense(EXPENSE_1);
+        sut.saveExpense(EXPENSE_1);
 
         //WHEN
-        int SINGLE_EXPENSE_DELETED = sut.deleteExpense(EXPENSE_1.getId());
+        int DELETED_EXPENSES = sut.deleteExpense(EXPENSE_1.getId());
 
         //THEN
         final int ONE_EXPENSE_DELETED = 1;
-        Assert.assertEquals(ONE_EXPENSE_DELETED, SINGLE_EXPENSE_DELETED);
+        Assert.assertEquals(ONE_EXPENSE_DELETED, DELETED_EXPENSES);
+    }
+
+    @Test
+    @Transactional
+    public void deleteExpense_expenseDoesNotExists_noExpensesShouldBeDeleted() {
+
+        final int NOT_EXISTING_EXPENSE_ID = 23;
+
+        //WHEN
+        int DELETED_EXPENSES = sut.deleteExpense(NOT_EXISTING_EXPENSE_ID);
+
+        //THEN
+        final int NO_EXPENSE_DELETED = 0;
+        Assert.assertEquals(NO_EXPENSE_DELETED, DELETED_EXPENSES);
+    }
+
+    @Test(expected = ExpenseUpdateException.class)
+    @Transactional
+    public void anExpenseIsNotSaved_updateThatNonExistingExpense_expenseUpdateExceptionIsThrown() {
+        //WHEN
+        EXPENSE_1.setId(1);
+        sut.updateExpense(EXPENSE_1);
+        //THEN
     }
 
 }
