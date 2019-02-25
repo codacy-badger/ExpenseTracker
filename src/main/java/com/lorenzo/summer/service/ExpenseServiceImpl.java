@@ -1,6 +1,8 @@
 package com.lorenzo.summer.service;
 
 import com.lorenzo.summer.dao.IExpenseDAO;
+import com.lorenzo.summer.exception.ExpenseNotFoundException;
+import com.lorenzo.summer.exception.RepositoryException;
 import com.lorenzo.summer.model.Expense;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,7 +47,13 @@ public class ExpenseServiceImpl implements IExpenseService {
     @Override
     @Transactional
     public Expense getExpenseById(int expenseId) {
-        return expenseDAO.getExpenseById(expenseId);
+        Expense expense;
+        try{
+            expense = expenseDAO.getExpenseById(expenseId);
+        } catch (RepositoryException repositoryException){
+            throw new ExpenseNotFoundException(repositoryException.getCause(), repositoryException.getMessage());
+        }
+        return expense;
     }
 
     @Override

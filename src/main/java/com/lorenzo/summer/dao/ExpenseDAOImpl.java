@@ -1,11 +1,8 @@
 package com.lorenzo.summer.dao;
 
-import com.lorenzo.summer.exception.ExpenseDeleteException;
-import com.lorenzo.summer.exception.ExpenseNotFoundException;
-import com.lorenzo.summer.exception.ExpenseSaveException;
-import com.lorenzo.summer.exception.ExpenseUpdateException;
+import com.lorenzo.summer.exception.RepositoryException;
 import com.lorenzo.summer.model.Expense;
-import org.hibernate.HibernateException;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
@@ -28,7 +25,7 @@ public class ExpenseDAOImpl implements IExpenseDAO {
         try {
             return doGetExpenseById(expenseId);
         } catch (Exception exception) {
-            throw new ExpenseNotFoundException("Error while retrieving expense " + expenseId);
+            throw new RepositoryException(ExceptionUtils.getRootCause(exception), ExceptionUtils.getRootCauseMessage(exception));
         }
     }
 
@@ -45,8 +42,8 @@ public class ExpenseDAOImpl implements IExpenseDAO {
     public Expense saveExpense(Expense expense) {
         try {
             return doGetExpense(expense);
-        } catch (HibernateException hibernateException) {
-            throw new ExpenseSaveException("Error while saving expense" + expense.toString());
+        } catch (Exception exception) {
+            throw new RepositoryException(ExceptionUtils.getRootCause(exception), ExceptionUtils.getRootCauseMessage(exception));
         }
     }
 
@@ -62,7 +59,7 @@ public class ExpenseDAOImpl implements IExpenseDAO {
         try {
             return doUpdateExpense(updatedExpense);
         } catch (Exception exception) {
-            throw new ExpenseUpdateException("Error updating expense " + updatedExpense.getId());
+            throw new RepositoryException(ExceptionUtils.getRootCause(exception), ExceptionUtils.getRootCauseMessage(exception));
         }
 
     }
@@ -78,7 +75,7 @@ public class ExpenseDAOImpl implements IExpenseDAO {
         try {
             return doDeleteExpense(expenseId);
         } catch (Exception exception) {
-            throw new ExpenseDeleteException("Error deleting expense " + expenseId);
+            throw new RepositoryException(ExceptionUtils.getRootCause(exception), ExceptionUtils.getRootCauseMessage(exception));
         }
     }
 

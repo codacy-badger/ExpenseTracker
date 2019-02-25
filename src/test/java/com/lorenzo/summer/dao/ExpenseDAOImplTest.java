@@ -1,13 +1,10 @@
 package com.lorenzo.summer.dao;
 
 import com.lorenzo.summer.SummerApplication;
-import com.lorenzo.summer.exception.ExpenseNotFoundException;
-import com.lorenzo.summer.exception.ExpenseUpdateException;
+import com.lorenzo.summer.exception.RepositoryException;
 import com.lorenzo.summer.model.Expense;
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -50,9 +47,9 @@ public class ExpenseDAOImplTest {
         Assert.assertEquals(EXPENSE, EXPENSE_1_READ);
     }
 
-    @Test(expected = ExpenseNotFoundException.class)
+    @Test(expected = RepositoryException.class)
     @Transactional
-    public void getExpenseById_noExpensesWithSuchIdExist_expenseNotFoundExceptionIsThrown() {
+    public void getExpenseById_noExpensesWithSuchIdExist_expenseRetrieveExceptionIsThrown() {
         //GIVEN
         sut.saveExpense(EXPENSE_2);
         sut.saveExpense(EXPENSE_3);
@@ -109,9 +106,9 @@ public class ExpenseDAOImplTest {
 
     }
 
-    @Test(expected = ExpenseNotFoundException.class)
+    @Test(expected = RepositoryException.class)
     @Transactional
-    public void saveTwoExpenses_alterIdOfASavedExpenseAndSave_expenseNotFoundExceptionIsThrown() {
+    public void saveTwoExpenses_alterIdOfASavedExpenseAndSave_expenseRetrieveExceptionIsThrown() {
         /*
         you cannot modify an Entity's ID in the same transaction
          */
@@ -142,9 +139,9 @@ public class ExpenseDAOImplTest {
         Assert.assertEquals(AN_EXPENSE_READ, sut.getExpenseById(AN_EXPENSE.getId()));
     }
 
-    @Test(expected = ExpenseNotFoundException.class)
+    @Test(expected = RepositoryException.class)
     @Transactional
-    public void saveAnExpense_deleteThatExpense_tryGettingThatExpenseResultsInExpenseNotFoundException() {
+    public void saveAnExpense_deleteThatExpense_tryGettingThatExpenseResultsInExpenseRetrieveException() {
         //GIVEN
         sut.saveExpense(EXPENSE_1);
         final Expense EXPENSE_TO_BE_DELETED = sut.saveExpense(EXPENSE_2);
@@ -185,13 +182,12 @@ public class ExpenseDAOImplTest {
         Assert.assertEquals(NO_EXPENSE_DELETED, DELETED_EXPENSES);
     }
 
-    @Test(expected = ExpenseUpdateException.class)
+    @Test(expected = RepositoryException.class)
     @Transactional
     public void anExpenseIsNotSaved_updateThatNonExistingExpense_expenseUpdateExceptionIsThrown() {
-        //WHEN
         EXPENSE_1.setId(1);
+        //WHEN
         sut.updateExpense(EXPENSE_1);
-        //THEN
     }
 
 }

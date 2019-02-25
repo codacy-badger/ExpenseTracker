@@ -114,7 +114,7 @@ public class ExpenseServiceIntegrationTest {
         Expense EXPENSE_1_RETRIEVED = sut.getExpenseById(EXPENSE_1_SAVED.getId());
 
         // THEN
-        Assert.assertEquals(EXPENSE_1_SAVED,EXPENSE_1_RETRIEVED);
+        Assert.assertEquals(EXPENSE_1_SAVED, EXPENSE_1_RETRIEVED);
     }
 
     @Test(expected = ExpenseNotFoundException.class)
@@ -139,7 +139,7 @@ public class ExpenseServiceIntegrationTest {
         // THEN
         Collection EXPENSES_IN_DB = sut.getAllExpenses();
         final int DELETED_NUMBER_OF_EXPENSES = 1;
-        Assert.assertEquals(DELETED_NUMBER_OF_EXPENSES,effectivelyDeletedNumberOfExpenses);
+        Assert.assertEquals(DELETED_NUMBER_OF_EXPENSES, effectivelyDeletedNumberOfExpenses);
         Assert.assertEquals(Arrays.asList(EXPENSE_1_SAVED, EXPENSE_3_SAVED), EXPENSES_IN_DB);
     }
 }
