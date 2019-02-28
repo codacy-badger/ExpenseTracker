@@ -1,7 +1,10 @@
 package com.lorenzo.summer.service;
 
 import com.lorenzo.summer.SummerApplication;
+import com.lorenzo.summer.exception.DeleteExpenseException;
 import com.lorenzo.summer.exception.ExpenseNotFoundException;
+import com.lorenzo.summer.exception.SaveExpenseException;
+import com.lorenzo.summer.exception.UpdateExpenseException;
 import com.lorenzo.summer.model.Expense;
 import org.junit.Assert;
 import org.junit.Test;
@@ -134,12 +137,57 @@ public class ExpenseServiceIntegrationTest {
         Expense EXPENSE_3_SAVED = sut.saveExpense(EXPENSE_3);
 
         //WHEN
-        final int effectivelyDeletedNumberOfExpenses = sut.deleteExpense(EXPENSE_2_SAVED.getId());
+        sut.deleteExpense(EXPENSE_2_SAVED.getId());
 
         // THEN
         Collection EXPENSES_IN_DB = sut.getAllExpenses();
-        final int DELETED_NUMBER_OF_EXPENSES = 1;
-        Assert.assertEquals(DELETED_NUMBER_OF_EXPENSES, effectivelyDeletedNumberOfExpenses);
         Assert.assertEquals(Arrays.asList(EXPENSE_1_SAVED, EXPENSE_3_SAVED), EXPENSES_IN_DB);
+    }
+
+    @Test(expected = SaveExpenseException.class)
+    @Transactional
+    public void saveTwoExpenses_alterIdOfASavedExpenseAndSave_expenseRetrieveExceptionIsThrown() {
+        //GIVEN
+        sut.saveExpense(EXPENSE_1);
+        Expense EXPENSE_2_SAVED = sut.saveExpense(EXPENSE_2);
+
+        //WHEN
+        EXPENSE_2_SAVED.setId(45);
+
+        //THEN
+        sut.saveExpense(EXPENSE_2_SAVED);
+    }
+
+    @Test(expected = ExpenseNotFoundException.class)
+    @Transactional
+    public void saveAnExpense_deleteThatExpense_tryGettingThatExpenseResultsInExpenseRetrieveException() {
+        //GIVEN
+        sut.saveExpense(EXPENSE_1);
+        final Expense EXPENSE_TO_BE_DELETED = sut.saveExpense(EXPENSE_2);
+        sut.saveExpense(EXPENSE_3);
+
+        //WHEN
+        sut.deleteExpense(EXPENSE_TO_BE_DELETED.getId());
+
+        //THEN
+        sut.getExpenseById(EXPENSE_TO_BE_DELETED.getId());
+    }
+
+    @Test(expected = UpdateExpenseException.class)
+    @Transactional
+    public void anExpenseIsNotSaved_updateThatNonExistingExpense_expenseUpdateExceptionIsThrown() {
+        EXPENSE_1.setId(1);
+        //WHEN
+        sut.updateExpense(EXPENSE_1);
+    }
+
+    @Test(expected = DeleteExpenseException.class)
+    @Transactional
+    public void deleteExpense_expenseDoesNotExists_deleteExpenseExceptionIsThrown() {
+
+        final int NOT_EXISTING_EXPENSE_ID = 23;
+
+        //WHEN
+        sut.deleteExpense(NOT_EXISTING_EXPENSE_ID);
     }
 }

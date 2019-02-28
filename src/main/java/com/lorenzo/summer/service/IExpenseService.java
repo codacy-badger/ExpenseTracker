@@ -16,5 +16,5 @@ public interface IExpenseService {
 
     Expense getExpenseById(int expenseId);
 
-    int deleteExpense(int expenseId);
+    void deleteExpense(int expenseId);
 }

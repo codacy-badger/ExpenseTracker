@@ -41,13 +41,13 @@ public class ExpenseDAOImpl implements IExpenseDAO {
     @Override
     public Expense saveExpense(Expense expense) {
         try {
-            return doGetExpense(expense);
+            return doSaveExpense(expense);
         } catch (Exception exception) {
             throw new RepositoryException(ExceptionUtils.getRootCause(exception), ExceptionUtils.getRootCauseMessage(exception));
         }
     }
 
-    private Expense doGetExpense(Expense expense) {
+    private Expense doSaveExpense(Expense expense) {
         Session currentSession = sessionFactory.getCurrentSession();
         final int savedExpensePrimaryKey = (int) currentSession.save(expense);
 
@@ -61,7 +61,6 @@ public class ExpenseDAOImpl implements IExpenseDAO {
         } catch (Exception exception) {
             throw new RepositoryException(ExceptionUtils.getRootCause(exception), ExceptionUtils.getRootCauseMessage(exception));
         }
-
     }
 
     private Expense doUpdateExpense(Expense updatedExpense) {
@@ -71,21 +70,17 @@ public class ExpenseDAOImpl implements IExpenseDAO {
     }
 
     @Override
-    public int deleteExpense(int expenseId) {
+    public void deleteExpense(int expenseId) {
         try {
-            return doDeleteExpense(expenseId);
+            doDeleteExpense(expenseId);
         } catch (Exception exception) {
             throw new RepositoryException(ExceptionUtils.getRootCause(exception), ExceptionUtils.getRootCauseMessage(exception));
         }
     }
 
-    private int doDeleteExpense(int expenseId) {
+    private void doDeleteExpense(int expenseId) {
         Session currentSession = sessionFactory.getCurrentSession();
-        final String deleteFrom = "delete FROM Expense WHERE id = :id";
-        Query deleteExpenseQuery = currentSession.createQuery(deleteFrom);
-        deleteExpenseQuery.setParameter("id", expenseId);
-
-        return deleteExpenseQuery.executeUpdate();
+        currentSession.delete(getExpenseById(expenseId));
     }
 
     @Override

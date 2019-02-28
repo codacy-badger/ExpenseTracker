@@ -1,6 +1,7 @@
 package com.lorenzo.summer.dao;
 
 import com.lorenzo.summer.SummerApplication;
+import com.lorenzo.summer.exception.DeleteExpenseException;
 import com.lorenzo.summer.exception.RepositoryException;
 import com.lorenzo.summer.model.Expense;
 import org.junit.Assert;
@@ -13,10 +14,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @SpringBootTest(classes = SummerApplication.class)
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -161,25 +159,21 @@ public class ExpenseDAOImplTest {
         sut.saveExpense(EXPENSE_1);
 
         //WHEN
-        int DELETED_EXPENSES = sut.deleteExpense(EXPENSE_1.getId());
+        sut.deleteExpense(EXPENSE_1.getId());
 
         //THEN
-        final int ONE_EXPENSE_DELETED = 1;
-        Assert.assertEquals(ONE_EXPENSE_DELETED, DELETED_EXPENSES);
+        Collection expensesRemained = sut.getAllExpenses();
+        Assert.assertTrue(expensesRemained.isEmpty());
     }
 
-    @Test
+    @Test(expected = RepositoryException.class)
     @Transactional
-    public void deleteExpense_expenseDoesNotExists_noExpensesShouldBeDeleted() {
+    public void deleteExpense_expenseDoesNotExists_deleteExpenseExceptionIsThrown() {
 
         final int NOT_EXISTING_EXPENSE_ID = 23;
 
         //WHEN
-        int DELETED_EXPENSES = sut.deleteExpense(NOT_EXISTING_EXPENSE_ID);
-
-        //THEN
-        final int NO_EXPENSE_DELETED = 0;
-        Assert.assertEquals(NO_EXPENSE_DELETED, DELETED_EXPENSES);
+        sut.deleteExpense(NOT_EXISTING_EXPENSE_ID);
     }
 
     @Test(expected = RepositoryException.class)

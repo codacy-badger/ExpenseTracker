@@ -11,7 +11,7 @@ public interface IExpenseDAO {
 
     Expense updateExpense(Expense updatedExpense);
 
-    int deleteExpense(int expenseId);
+    void deleteExpense(int expenseId);
 
     List<Expense> getAllExpenses();
 }
