@@ -94,7 +94,7 @@ public class ExpenseDAOImplTest {
 
     @Test
     @Transactional
-    public void saveTwoExpenses_saveTheExpenses_expesesIdsAreCorrectlyOrdered() {
+    public void saveTwoExpenses_saveTheExpenses_expensesIdsAreCorrectlyOrdered() {
         //WHEN
         sut.saveExpense(EXPENSE_1);
         final Expense ANOTHER_EXPENSE = sut.saveExpense(EXPENSE_2);

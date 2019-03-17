@@ -55,6 +55,13 @@
             <type>pom</type>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-jpa</artifactId>
+            <version>2.1.5.RELEASE</version>
+        </dependency>
+
+
         <!-- MYSql connector to support DB connection -->
         <dependency>
             <groupId>mysql</groupId>

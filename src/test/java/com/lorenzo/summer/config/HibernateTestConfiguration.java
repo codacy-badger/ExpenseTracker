@@ -20,7 +20,6 @@ import java.util.Properties;
 @EnableTransactionManagement
 public class HibernateTestConfiguration {
 
-
     //allows many things, one is to retrieve file resources from the application
     @Autowired
     private ApplicationContext context;

@@ -5,9 +5,9 @@ import com.lorenzo.summer.model.Expense;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.NativeQuery;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
@@ -23,71 +23,53 @@ public class ExpenseDAOImpl implements IExpenseDAO {
     @Override
     public Expense getExpenseById(int expenseId) {
         try {
-            return doGetExpenseById(expenseId);
+            Session session = sessionFactory.getCurrentSession();
+            String getExpenseById = "SELECT * FROM expense E WHERE E.id = :expenseId";
+            NativeQuery<Expense> query = session.createNativeQuery(getExpenseById, Expense.class);
+            query.setParameter("expenseId", expenseId);
+            return query.getSingleResult();
         } catch (Exception exception) {
             throw new RepositoryException(ExceptionUtils.getRootCause(exception), ExceptionUtils.getRootCauseMessage(exception));
         }
-    }
-
-    private Expense doGetExpenseById(int expenseId) {
-        Session currentSession = sessionFactory.getCurrentSession();
-        final String getExpenseById = "FROM Expense E WHERE E.id = :expenseId";
-        TypedQuery<Expense> expenseByIdQuery = currentSession.createQuery(getExpenseById, Expense.class);
-        expenseByIdQuery.setParameter("expenseId", expenseId);
-
-        return expenseByIdQuery.getSingleResult();
     }
 
     @Override
     public Expense saveExpense(Expense expense) {
         try {
-            return doSaveExpense(expense);
+            Session session = sessionFactory.getCurrentSession();
+            int savedExpensePrimaryKey = (int) session.save(expense);
+            return getExpenseById(savedExpensePrimaryKey);
         } catch (Exception exception) {
             throw new RepositoryException(ExceptionUtils.getRootCause(exception), ExceptionUtils.getRootCauseMessage(exception));
         }
-    }
-
-    private Expense doSaveExpense(Expense expense) {
-        Session currentSession = sessionFactory.getCurrentSession();
-        final int savedExpensePrimaryKey = (int) currentSession.save(expense);
-
-        return getExpenseById(savedExpensePrimaryKey);
     }
 
     @Override
     public Expense updateExpense(Expense updatedExpense) {
         try {
-            return doUpdateExpense(updatedExpense);
+            Session session = sessionFactory.getCurrentSession();
+            session.update(updatedExpense);
+            return getExpenseById(updatedExpense.getId());
         } catch (Exception exception) {
             throw new RepositoryException(ExceptionUtils.getRootCause(exception), ExceptionUtils.getRootCauseMessage(exception));
         }
-    }
-
-    private Expense doUpdateExpense(Expense updatedExpense) {
-        Session currentSession = sessionFactory.getCurrentSession();
-        currentSession.update(updatedExpense);
-        return getExpenseById(updatedExpense.getId());
     }
 
     @Override
     public void deleteExpense(int expenseId) {
         try {
-            doDeleteExpense(expenseId);
+            Session session = sessionFactory.getCurrentSession();
+            session.delete(getExpenseById(expenseId));
         } catch (Exception exception) {
             throw new RepositoryException(ExceptionUtils.getRootCause(exception), ExceptionUtils.getRootCauseMessage(exception));
         }
     }
 
-    private void doDeleteExpense(int expenseId) {
-        Session currentSession = sessionFactory.getCurrentSession();
-        currentSession.delete(getExpenseById(expenseId));
-    }
-
     @Override
     public List<Expense> getAllExpenses() {
-        Session currentSession = sessionFactory.getCurrentSession();
+        Session session = sessionFactory.getCurrentSession();
         final String fromExpenseTable = "FROM Expense";
-        TypedQuery<Expense> expensesQuery = currentSession.createQuery(fromExpenseTable, Expense.class);
+        TypedQuery<Expense> expensesQuery = session.createQuery(fromExpenseTable, Expense.class);
 
         return expensesQuery.getResultList();
     }
