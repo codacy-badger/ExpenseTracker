@@ -1,20 +1,37 @@
 package com.lorenzo.summer.service;
 
 import com.lorenzo.summer.model.Expense;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 public interface IExpenseService {
-    List<Expense> getAllExpenses();
 
-    Expense saveExpense(Expense expense);
+    Expense save(Expense toSave);
 
-    Expense saveExpense(Date date, String vendor, Double price, int pay_method, byte[] scan);
+    Expense save(Date date, String vendor, Double price, int pay_method, byte[] scan);
 
-    Expense updateExpense(Expense toUpdate);
+    Expense findById(int id);
 
-    Expense getExpenseById(int expenseId);
+    Collection<Expense> findAll();
 
-    void deleteExpense(int expenseId);
+    long count();
+
+    void deleteById(int id);
+
+    void delete(Expense toDelete);
+
+    boolean existsById(int id);
+
+    void deleteAll();
+
+    @Transactional
+    void deleteAll(Collection<Expense> toDelete);
+
+    @Transactional
+    Collection<Expense> findAllById(Collection<Integer> toFind);
+
+    @Transactional
+    Collection<Expense> saveAll(Collection<Expense> toSave);
 }

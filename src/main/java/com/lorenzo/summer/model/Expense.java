@@ -5,12 +5,14 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Objects;
 
+import static javax.persistence.GenerationType.IDENTITY;
+
 @Entity
 @Table(name="expense")
 public class Expense {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
     private int id;
 
@@ -24,7 +26,7 @@ public class Expense {
     private Double price;
 
     @Column(name="pay_method")
-    private int pay_method;
+    private int payMethod;
 
     @Column(name="scan")
     private byte[] scan;
@@ -32,11 +34,11 @@ public class Expense {
     public Expense() {
     }
 
-    public Expense(Date date, String vendor, Double price, int pay_method, byte[] scan) {
+    public Expense(Date date, String vendor, Double price, int payMethod, byte[] scan) {
         this.date = date;
         this.vendor = vendor;
         this.price = price;
-        this.pay_method = pay_method;
+        this.payMethod = payMethod;
         this.scan = scan;
     }
 
@@ -72,12 +74,12 @@ public class Expense {
         this.price = price;
     }
 
-    public int getPay_method() {
-        return pay_method;
+    public int getPayMethod() {
+        return payMethod;
     }
 
-    public void setPay_method(int pay_method) {
-        this.pay_method = pay_method;
+    public void setPayMethod(int payMethod) {
+        this.payMethod = payMethod;
     }
 
     public byte[] getScan() {
@@ -108,7 +110,7 @@ public class Expense {
                 ", date=" + date +
                 ", vendor='" + vendor + '\'' +
                 ", price=" + price +
-                ", pay_method=" + pay_method +
+                ", payMethod=" + payMethod +
                 ", scan=" + Arrays.toString(scan) +
                 '}';
     }

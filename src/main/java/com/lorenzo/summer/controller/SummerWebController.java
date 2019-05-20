@@ -22,28 +22,28 @@ public class SummerWebController {
         return ret;
     }
 
-    @RequestMapping("/getExpense")
-    public Expense getExpenseById(@RequestParam(value = "expenseId") int expenseId) {
-        return expenseService.getExpenseById(expenseId);
+    @RequestMapping("/findById")
+    public Expense findById(@RequestParam(value = "expenseId") int expenseId) {
+        return expenseService.findById(expenseId);
     }
 
-    @RequestMapping(path = "/deleteExpense", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void deleteExpenseById(@RequestParam(value = "expenseId") int expenseId) {
-        expenseService.deleteExpense(expenseId);
+    @RequestMapping(path = "/deleteById", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void deleteById(@RequestParam(value = "expenseId") int expenseId) {
+        expenseService.deleteById(expenseId);
     }
 
-    @RequestMapping(path = "/allExpenses", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Collection<Expense> getExpenseById() {
-        return expenseService.getAllExpenses();
+    @RequestMapping(path = "/findAll", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Collection<Expense> findAll() {
+        return expenseService.findAll();
     }
 
-    @PostMapping(path = "/saveExpense", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Expense createExpense(@RequestBody Expense toCreate) {
-        return expenseService.saveExpense(toCreate);
+    @PostMapping(path = "/save", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Expense save(@RequestBody Expense toCreate) {
+        return expenseService.save(toCreate);
     }
 
-    @PostMapping(path = "/updateExpense", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Expense updateExpense(@RequestBody Expense toUpdate) {
-        return expenseService.updateExpense(toUpdate);
+    @PostMapping(path = "/update", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Expense update(@RequestBody Expense toUpdate) {
+        return expenseService.save(toUpdate);
     }
 }
