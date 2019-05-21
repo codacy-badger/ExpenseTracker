@@ -2,17 +2,14 @@ package com.lorenzo.summer.service;
 
 import com.lorenzo.summer.model.Expense;
 import com.lorenzo.summer.repository.ExpenseRepository;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Optional;
 
-import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.data.util.StreamUtils.createStreamFromIterator;
 
@@ -28,8 +25,7 @@ public class ExpenseServiceImpl implements IExpenseService {
     @Override
     @Transactional
     public Expense save(Expense toSave) {
-        final Expense expense = ofNullable(toSave).orElseThrow(IllegalArgumentException::new);
-        return repository.save(expense);
+        return repository.save(toSave);
     }
 
     @Override
@@ -41,8 +37,8 @@ public class ExpenseServiceImpl implements IExpenseService {
 
     @Override
     @Transactional
-    public Expense findById(int id) {
-        return repository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Expense not found"));
+    public Optional<Expense> findById(int id) {
+        return repository.findById(id);
     }
 
     @Override
@@ -61,20 +57,13 @@ public class ExpenseServiceImpl implements IExpenseService {
     @Override
     @Transactional
     public void deleteById(int id) {
-        try {
-            repository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Expense not found, cannot delete");
-        }
+        repository.deleteById(id);
     }
 
     @Override
     @Transactional
     public void delete(Expense toDelete) {
-        ofNullable(toDelete).orElseThrow(IllegalArgumentException::new);
-        if (existsById(toDelete.getId())) {
-            repository.delete(toDelete);
-        } else throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Expense not found, cannot delete");
+        repository.delete(toDelete);
     }
 
     @Override
@@ -92,21 +81,18 @@ public class ExpenseServiceImpl implements IExpenseService {
     @Override
     @Transactional
     public void deleteAll(Collection<Expense> toDelete) {
-        ofNullable(toDelete).orElseThrow(IllegalArgumentException::new);
         repository.deleteAll(toDelete);
     }
 
     @Override
     @Transactional
     public Collection<Expense> findAllById(Collection<Integer> toFind) {
-        ofNullable(toFind).orElseThrow(IllegalArgumentException::new);
         return createStreamFromIterator(repository.findAllById(toFind).iterator()).collect(toList());
     }
 
     @Override
     @Transactional
     public Collection<Expense> saveAll(Collection<Expense> toSave) {
-        ofNullable(toSave).orElseThrow(IllegalArgumentException::new);
         return createStreamFromIterator(repository.saveAll(toSave).iterator()).collect(toList());
     }
 }

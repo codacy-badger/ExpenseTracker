@@ -8,6 +8,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Profile;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -42,8 +45,8 @@ public class ExpenseServiceIT {
         expense_3 = new Expense(new Date(), "VENDOR_3", 3d, 3, new byte[3]);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void nullExpense_save_throwsIllegalArgumentException() {
+    @Test(expected = InvalidDataAccessApiUsageException.class)
+    public void nullExpense_save_throwsInvalidDataAccessApiUsageException() {
         //WHEN
         sut.save(null);
     }
@@ -57,10 +60,13 @@ public class ExpenseServiceIT {
         assertEquals(expense_1, result);
     }
 
-    @Test(expected = ResponseStatusException.class)
-    public void nullId_findById_throwsResponseStatusException() {
+    @Test
+    public void nullId_findById_expenseNotFound() {
         //WHEN
-        sut.findById(46);
+        final Optional<Expense> byId = sut.findById(46);
+
+        //THEN
+        assertFalse(byId.isPresent());
     }
 
     @Test
@@ -69,10 +75,11 @@ public class ExpenseServiceIT {
         final Expense saved = sut.save(expense_1);
 
         //WHEN
-        final Expense result = sut.findById(saved.getId());
+        final Optional<Expense> result = sut.findById(saved.getId());
 
         //THEN
-        assertEquals(saved, result);
+        assertTrue(result.isPresent());
+        assertEquals(saved, result.get());
     }
 
     @Test
@@ -121,32 +128,32 @@ public class ExpenseServiceIT {
         assertEquals(asList(expense_1, expense_2, expense_3).size(), count);
     }
 
-    @Test(expected = ResponseStatusException.class)
-    public void noExpensesInRepository_deleteById_throwsResponseStatusException() {
+    @Test(expected = EmptyResultDataAccessException.class)
+    public void noExpensesInRepository_deleteById_throwsEmptyResultDataAccessException() {
         //WHEN
         sut.deleteById(33);
     }
 
-    @Test(expected = ResponseStatusException.class)
+    @Test
     public void saveAnExpense_deleteById_expenseDeleted() {
         //GIVEN
-        final int expense2Id = expense_2.getId();
-        sut.save(expense_2);
+        final Expense saved = sut.save(expense_2);
 
         //WHEN
-        sut.deleteById(expense2Id);
+        final int savedId = saved.getId();
+        sut.deleteById(savedId);
 
         //THEN
-        sut.findById(expense2Id);
+        sut.findById(savedId);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void nullExpense_delete_throwsIllegalArgumentException() {
+    @Test(expected = InvalidDataAccessApiUsageException.class)
+    public void nullExpense_delete_throwsInvalidDataAccessApiUsageException() {
         //WHEN
         sut.delete(null);
     }
 
-    @Test(expected = ResponseStatusException.class)
+    @Test
     public void notExistingExpense_delete_throwsResponseStatusException() {
         //WHEN
         sut.delete(expense_3);
@@ -193,7 +200,7 @@ public class ExpenseServiceIT {
         assertEquals(emptyList(), sut.findAll());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = InvalidDataAccessApiUsageException.class)
     public void nullExpenseCollection_delete_throwsIllegalArgumentException() {
         //WHEN
         sut.deleteAll(null);
@@ -215,8 +222,8 @@ public class ExpenseServiceIT {
         assertTrue(sut.existsById(expense_1.getId()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void nullCollectionOfIds_findAllByIds_throwsIllegalArgumentException() {
+    @Test(expected = InvalidDataAccessApiUsageException.class)
+    public void nullCollectionOfIds_findAllByIds_throwsInvalidDataAccessApiUsageException() {
         //WHEN
         sut.findAllById(null);
     }
@@ -245,8 +252,8 @@ public class ExpenseServiceIT {
         assertEquals(emptyList(), allById);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void nullCollectionOfExpenses_saveAll_throwsIllegalArgumentException() {
+    @Test(expected = InvalidDataAccessApiUsageException.class)
+    public void nullCollectionOfExpenses_saveAll_throwsInvalidDataAccessApiUsageException() {
         //WHEN
         sut.saveAll(null);
     }
@@ -271,8 +278,9 @@ public class ExpenseServiceIT {
         sut.save(saved);
 
         //THEN
-        final Expense byId = sut.findById(expense_1.getId());
-        assertEquals(byId.getPrice(), newPrice, 0.0);
+        final Optional<Expense> byId = sut.findById(expense_1.getId());
+        assertTrue(byId.isPresent());
+        assertEquals(byId.get().getPrice(), newPrice, 0.0);
     }
 
 }
