@@ -27,12 +27,9 @@ public interface IExpenseService {
 
     void deleteAll();
 
-    @Transactional
     void deleteAll(Collection<Expense> toDelete);
 
-    @Transactional
     Collection<Expense> findAllById(Collection<Integer> toFind);
 
-    @Transactional
     Collection<Expense> saveAll(Collection<Expense> toSave);
 }
