@@ -29,7 +29,7 @@ import static org.junit.Assert.*;
 //WE WANT TESTS TO BE ISOLATED, DirtiesContext RELOAD SPRING CONTEXT AFTER EACH TESTS, SO THAT THE HSQLDB STARTS CLEAN
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @Transactional
-public class ExpenseServiceIT {
+public class ExpenseServiceImplTest {
 
     private Expense expense_1;
     private Expense expense_2;
