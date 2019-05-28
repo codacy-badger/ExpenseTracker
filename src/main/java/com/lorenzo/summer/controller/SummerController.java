@@ -13,12 +13,12 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
-public class SummerWebController {
+public class SummerController {
 
     private IExpenseService expenseService;
 
-    public SummerWebController(IExpenseService expenseService) {
-        this.expenseService = expenseService;
+    public SummerController(IExpenseService expenseServiceImpl) {
+        this.expenseService = expenseServiceImpl;
     }
 
     @RequestMapping("/findById")
