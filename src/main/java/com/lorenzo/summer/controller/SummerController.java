@@ -26,7 +26,7 @@ public class SummerController {
         return expenseService.findById(expenseId).orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Expense not found"));
     }
 
-    @RequestMapping(path = "/deleteById", consumes = APPLICATION_JSON_VALUE)
+    @RequestMapping("/deleteById")
     public void deleteById(@RequestParam(value = "expenseId") int expenseId) {
         final ResponseStatusException notFoundException = new ResponseStatusException(NOT_FOUND, "Expense not found, cannot delete");
         try {
@@ -36,7 +36,7 @@ public class SummerController {
         }
     }
 
-    @RequestMapping(path = "/findAll", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(path = "/findAll", produces = APPLICATION_JSON_VALUE)
     public Collection<Expense> findAll() {
         return expenseService.findAll();
     }
