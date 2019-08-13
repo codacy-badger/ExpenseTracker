@@ -7,4 +7,5 @@ The file src\main\resources\application.properties can be set to use Spring Boot
 Test profile is used for unit and integration tests, it will enable a configuration for a HSQLDB in-memory db.
 Production profile will enable another configuration, this time for a MySQL db.
 
+# TRAVIS CI
 [![Build Status](https://travis-ci.org/santinilorenzo/ExpenseTracker.svg?branch=master)](https://travis-ci.org/santinilorenzo/ExpenseTracker)
