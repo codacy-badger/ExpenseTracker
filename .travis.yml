@@ -2,5 +2,5 @@ language: java
 jdk:
   - oraclejdk8
 install: true
-script: ./mvnw test
+script: mvn test
 dist: trusty
