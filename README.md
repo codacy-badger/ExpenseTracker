@@ -1,5 +1,5 @@
 # Expense Tracker
-Simple Spring Boot + Spring Data expense tracker web service. Made to learn a little bit of Spring Data CrudRepository configuration and usages.
+Spring Boot + Spring Data expense tracker web service. Made to learn a little bit of Spring Data CrudRepository configuration and usages.
 It's a very simple project.
 
 # Unit test
