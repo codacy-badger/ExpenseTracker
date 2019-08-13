@@ -1,4 +1,4 @@
-package com.lorenzo.summer.model;
+package com.lorenzo.expense.model;
 
 import javax.persistence.*;
 import java.util.Arrays;

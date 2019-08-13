@@ -1,7 +1,7 @@
-package com.lorenzo.summer.controller;
+package com.lorenzo.expense.controller;
 
-import com.lorenzo.summer.model.Expense;
-import com.lorenzo.summer.service.IExpenseService;
+import com.lorenzo.expense.model.Expense;
+import com.lorenzo.expense.service.IExpenseService;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -13,26 +13,27 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
-public class SummerController {
+public class ExpenseController {
 
+    private final ResponseStatusException expenseNotFound = new ResponseStatusException(NOT_FOUND, "Expense not found");
+    private final ResponseStatusException invalidExpense = new ResponseStatusException(BAD_REQUEST, "Invalid Expense");
     private IExpenseService expenseService;
 
-    public SummerController(IExpenseService expenseServiceImpl) {
+    public ExpenseController(IExpenseService expenseServiceImpl) {
         this.expenseService = expenseServiceImpl;
     }
 
     @RequestMapping("/findById")
     public Expense findById(@RequestParam(value = "expenseId") int expenseId) {
-        return expenseService.findById(expenseId).orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Expense not found"));
+        return expenseService.findById(expenseId).orElseThrow(() -> expenseNotFound);
     }
 
     @RequestMapping("/deleteById")
     public void deleteById(@RequestParam(value = "expenseId") int expenseId) {
-        final ResponseStatusException notFoundException = new ResponseStatusException(NOT_FOUND, "Expense not found, cannot delete");
         try {
             expenseService.deleteById(expenseId);
         } catch (IllegalArgumentException | EmptyResultDataAccessException e) {
-            throw notFoundException;
+            throw expenseNotFound;
         }
     }
 
@@ -46,7 +47,7 @@ public class SummerController {
         try {
             return expenseService.save(expense);
         } catch (Exception e) {
-            throw new ResponseStatusException(BAD_REQUEST, "You have passed an invalid Expense");
+            throw invalidExpense;
         }
     }
 

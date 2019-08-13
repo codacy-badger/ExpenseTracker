@@ -1,7 +1,7 @@
-package com.lorenzo.summer.service;
+package com.lorenzo.expense.service;
 
-import com.lorenzo.summer.model.Expense;
-import com.lorenzo.summer.repository.ExpenseRepository;
+import com.lorenzo.expense.model.Expense;
+import com.lorenzo.expense.repository.ExpenseRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.lorenzo</groupId>
-    <artifactId>summer</artifactId>
+    <artifactId>expensetracker</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>summer</name>
+    <name>ExpenseTracker</name>
     <description>Demo project for Spring Boot</description>
 
     <properties>
@@ -74,7 +74,6 @@
         </dependency>
 
         <!-- unit testing dependencies-->
-
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>

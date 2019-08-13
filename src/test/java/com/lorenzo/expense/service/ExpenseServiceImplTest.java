@@ -1,7 +1,7 @@
-package com.lorenzo.summer.service;
+package com.lorenzo.expense.service;
 
-import com.lorenzo.summer.SummerApplication;
-import com.lorenzo.summer.model.Expense;
+import com.lorenzo.expense.ExpenseTracker;
+import com.lorenzo.expense.model.Expense;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +22,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.*;
 
-@SpringBootTest(classes = SummerApplication.class)
+@SpringBootTest(classes = ExpenseTracker.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 @Profile("test")
 //WE WANT TESTS TO BE ISOLATED, DirtiesContext RELOAD SPRING CONTEXT AFTER EACH TESTS, SO THAT THE HSQLDB STARTS CLEAN

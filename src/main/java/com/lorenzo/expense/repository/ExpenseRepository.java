@@ -1,6 +1,6 @@
-package com.lorenzo.summer.repository;
+package com.lorenzo.expense.repository;
 
-import com.lorenzo.summer.model.Expense;
+import com.lorenzo.expense.model.Expense;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

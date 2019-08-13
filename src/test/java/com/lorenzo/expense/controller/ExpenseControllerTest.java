@@ -1,8 +1,8 @@
-package com.lorenzo.summer.controller;
+package com.lorenzo.expense.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lorenzo.summer.model.Expense;
-import com.lorenzo.summer.service.IExpenseService;
+import com.lorenzo.expense.model.Expense;
+import com.lorenzo.expense.service.IExpenseService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,14 +22,15 @@ import static java.util.Optional.of;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebMvcTest(SummerController.class)
+@WebMvcTest(ExpenseController.class)
 //Tests only the web layer, not the whole context
 @Profile("test")
-public class SummerControllerTest {
+public class ExpenseControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -73,7 +74,7 @@ public class SummerControllerTest {
     }
 
     @Test
-    public void findAll() throws Exception {
+    public void someExpensesAreSaved_findAll_expensesReturned() throws Exception {
         //WHEN
         final List<Expense> expenses = asList(new Expense(new Date(), "VENDOR_1", 1d, 1, new byte[1]),
                 new Expense(new Date(), "VENDOR_2", 2d, 2, new byte[2]),
@@ -86,10 +87,49 @@ public class SummerControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(mvcResult -> {
-                    final String resultAsString = mvcResult.getResponse().getContentAsString();
                     final ObjectMapper objectMapper = new ObjectMapper();
-                    Expense[] results = objectMapper.readValue(resultAsString, Expense[].class);
+                    Expense[] results = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Expense[].class);
                     assertEquals(expenses, asList(results));
                 });
+    }
+
+    @Test
+    public void trySaveValidExpense_save_okReturned() throws Exception {
+        //GIVEN
+        final Expense toSave = new Expense(new Date(), "VENDOR_1", 1d, 1, new byte[1]);
+        final String json = new ObjectMapper().writeValueAsString(toSave);
+
+        //WHEN
+        when(expenseService.save(toSave)).thenReturn(toSave);
+
+        //THEN
+        this.mockMvc.perform(post("/save")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(json)
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(mvcResult -> {
+                    final ObjectMapper objectMapper = new ObjectMapper();
+                    Expense result = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Expense.class);
+                    assertEquals(toSave, result);
+                });
+    }
+
+    @Test
+    public void tryToSaveInvalidExpense_save_badRequestReturned() throws Exception {
+        //GIVEN
+        final Expense toSave = new Expense(new Date(), "VENDOR_1", 1d, 1, new byte[1]);
+        final String json = new ObjectMapper().writeValueAsString(toSave);
+
+        //WHEN
+        when(expenseService.save(toSave)).thenThrow(RuntimeException.class);
+
+        //THEN
+        this.mockMvc.perform(post("/save")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(json)
+        )
+                .andExpect(status().isBadRequest());
     }
 }

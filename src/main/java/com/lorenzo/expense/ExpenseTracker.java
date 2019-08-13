@@ -1,14 +1,14 @@
-package com.lorenzo.summer;
+package com.lorenzo.expense;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import static org.springframework.boot.SpringApplication.run;
 
 @SpringBootApplication
-public class SummerApplication {
+public class ExpenseTracker {
 
     public static void main(String[] args) {
-        run(SummerApplication.class, args);
+        run(ExpenseTracker.class, args);
     }
 
 }

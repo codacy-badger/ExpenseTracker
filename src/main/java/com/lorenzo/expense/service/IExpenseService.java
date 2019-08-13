@@ -1,7 +1,6 @@
-package com.lorenzo.summer.service;
+package com.lorenzo.expense.service;
 
-import com.lorenzo.summer.model.Expense;
-import org.springframework.transaction.annotation.Transactional;
+import com.lorenzo.expense.model.Expense;
 
 import java.util.Collection;
 import java.util.Date;
