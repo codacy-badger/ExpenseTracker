@@ -25,8 +25,6 @@ import static org.junit.Assert.*;
 @SpringBootTest(classes = ExpenseTracker.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 @Profile("test")
-//WE WANT TESTS TO BE ISOLATED, DirtiesContext RELOAD SPRING CONTEXT AFTER EACH TESTS, SO THAT THE HSQLDB STARTS CLEAN
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @Transactional
 public class ExpenseServiceImplTest {
 
@@ -39,6 +37,8 @@ public class ExpenseServiceImplTest {
 
     @Before
     public void setUp() {
+
+
         expense_1 = new Expense(new Date(), "VENDOR_1", 1d, 1, new byte[1]);
         expense_2 = new Expense(new Date(), "VENDOR_2", 2d, 2, new byte[2]);
         expense_3 = new Expense(new Date(), "VENDOR_3", 3d, 3, new byte[3]);
